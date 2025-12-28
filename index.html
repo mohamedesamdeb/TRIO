@@ -252,6 +252,10 @@
                 <div class="icon-box"><i class="fas fa-fingerprint"></i></div>
                 <span>تسجيل الحضور</span>
             </li>
+            <li style="--i:4" onclick="goToPage('attendance-history')">
+    <div class="icon-box"><i class="fas fa-history"></i></div>
+    <span>سجل الحضور</span>
+</li>
             <li style="--i:2" onclick="goToPage('leave-request')">
                 <div class="icon-box"><i class="fas fa-paper-plane"></i></div>
                 <span>طلب إجازة</span>
@@ -387,6 +391,48 @@
     </button>
 </div>
 
+<div id="attendance-history-page" class="card hidden" style="max-width: 600px;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <button onclick="backToMain()" style="width: 40px; padding: 10px; margin: 0; background: #eee; color: #333; border-radius: 50%;">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+        <h2 style="margin: 0;">سجل الحضور: <span id="dynamic-user-history">المستخدم</span></h2>
+    </div>
+
+    <div style="overflow-x: auto; border-radius: 15px; border: 1px solid #edf0f5;">
+        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; min-width: 500px;">
+            <thead>
+                <tr style="background: #f8f9fc; color: var(--primary); border-bottom: 2px solid #edf0f5;">
+                    <th style="padding: 12px;">التاريخ</th>
+                    <th style="padding: 12px;">الاسم</th>
+                    <th style="padding: 12px;">حضور</th>
+                    <th style="padding: 12px;">انصراف</th>
+                    <th style="padding: 12px;">تأخير</th>
+                    <th style="padding: 12px;">إضافي</th>
+                </tr>
+            </thead>
+            <tbody id="history-table-body">
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px; font-weight: bold;">2023-10-25</td>
+                    <td style="padding: 12px; color: #555;">أحمد محمد</td>
+                    <td style="padding: 12px; color: var(--success); font-weight: bold;">08:30</td>
+                    <td style="padding: 12px; color: var(--danger); font-weight: bold;">04:30</td>
+                    <td style="padding: 12px;"><span style="background: #fff0f0; color: #e74a3b; padding: 2px 8px; border-radius: 5px;">00:30</span></td>
+                    <td style="padding: 12px;"><span style="background: #f0fff4; color: #28a745; padding: 2px 8px; border-radius: 5px;">01:00</span></td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px; font-weight: bold;">2023-10-24</td>
+                    <td style="padding: 12px; color: #555;">أحمد محمد</td>
+                    <td style="padding: 12px; color: var(--success); font-weight: bold;">07:55</td>
+                    <td style="padding: 12px; color: var(--danger); font-weight: bold;">04:00</td>
+                    <td style="padding: 12px; color: #aaa;">--:--</td>
+                    <td style="padding: 12px; color: #aaa;">--:--</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 </div>
 
 <div id="camera-overlay">
@@ -403,19 +449,19 @@
     const p = document.getElementById('password').value;
     
     if(u === "admin" && p === "123") {
-        // تحديث اسم المستخدم في القائمة الجانبية قبل الانتقال للصفحة الرئيسية
+        // تحديث الاسم في القائمة الجانبية
         document.getElementById('user-name-display').innerText = "مرحباً، " + u;
+        
+        // تحديث العنوان في صفحة سجل الحضور [تعديل جديد]
+        document.getElementById('dynamic-user-history').innerText = u;
         
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('main-page').classList.remove('hidden');
         document.getElementById('menu-toggle').style.display = 'flex';
+        
+        // اختيارياً: يمكنك استدعاء دالة هنا لملء الجدول ببيانات هذا المستخدم فقط من قاعدة بياناتك
     } else {
-        Swal.fire({ 
-            icon: 'error', 
-            title: 'خطأ', 
-            text: 'بيانات الدخول غير صحيحة', 
-            confirmButtonText: 'حاول مجدداً' 
-        });
+        Swal.fire({ icon: 'error', title: 'خطأ', text: 'بيانات الدخول غير صحيحة' });
     }
 }
 
@@ -500,6 +546,26 @@
                     setTimeout(() => {
                         stream.getTracks().forEach(t => t.stop());
                         overlay.style.display = 'none';
+                        // --- إضافة البيانات للجدول تلقائياً ---
+const tableBody = document.getElementById('history-table-body');
+const today = new Date().toLocaleDateString('en-CA'); // تاريخ اليوم (YYYY-MM-DD)
+const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+const loggedInUser = document.getElementById('username').value; // جلب اسم المستخدم الحالي
+
+const newRow = `
+    <tr style="border-bottom: 1px solid #eee;">
+        <td style="padding: 12px; font-weight: bold;">${today}</td>
+        <td style="padding: 12px; color: #555;">${loggedInUser}</td>
+        <td style="padding: 12px; color: var(--success); font-weight: bold;">${type === 'حضور' ? now : '--:--'}</td>
+        <td style="padding: 12px; color: var(--danger); font-weight: bold;">${type === 'انصراف' ? now : '--:--'}</td>
+        <td style="padding: 12px; color: #aaa;">--:--</td>
+        <td style="padding: 12px; color: #aaa;">--:--</td>
+    </tr>
+`;
+
+// إضافة الصف الجديد في أعلى الجدول
+tableBody.innerHTML = newRow + tableBody.innerHTML;
+// --------------------------------------
                         Swal.fire({
                             icon: 'success',
                             title: 'تم بنجاح',
@@ -556,12 +622,14 @@ function goToPage(page) {
 }
 
 // وظيفة التنقل بين الصفحات
+// تحديث وظيفة التنقل بين الصفحات
 function goToPage(page) {
     toggleMenu(); // غلق القائمة
     
     // إخفاء جميع الصفحات أولاً
     document.getElementById('main-page').classList.add('hidden');
     document.getElementById('leave-request-page').classList.add('hidden');
+    document.getElementById('attendance-history-page').classList.add('hidden'); // إخفاء السجل
     
     if(page === 'attendance') {
         document.getElementById('main-page').classList.remove('hidden');
@@ -569,15 +637,19 @@ function goToPage(page) {
     else if(page === 'leave-request') {
         document.getElementById('leave-request-page').classList.remove('hidden');
     }
+    else if(page === 'attendance-history') {
+        document.getElementById('attendance-history-page').classList.remove('hidden');
+    }
     else if(page === 'leave-status') {
         Swal.fire('حالة الطلبات', 'لا توجد طلبات سابقة لعرضها حالياً', 'info');
         document.getElementById('main-page').classList.remove('hidden');
     }
 }
 
-// دالة العودة للرئيسية
+// تحديث دالة العودة للرئيسية
 function backToMain() {
     document.getElementById('leave-request-page').classList.add('hidden');
+    document.getElementById('attendance-history-page').classList.add('hidden'); // إخفاء السجل عند العودة
     document.getElementById('main-page').classList.remove('hidden');
 }
 
