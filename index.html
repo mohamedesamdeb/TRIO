@@ -48,6 +48,7 @@
             padding: 15px;
         }
 
+        /* الكارت الأساسي */
         .card {
             background: white;
             padding: 25px;
@@ -57,6 +58,16 @@
             max-width: 400px;
             text-align: center;
             position: relative;
+            /* تأكد من إضافة هذه السطور لمنع أي حركة جانبية قديمة */
+            transform: none !important;
+            transition: opacity 0.3s ease;
+        }
+
+        /* الكلاس المسؤول عن الإخفاء - استخدم هذا فقط واحذف التكرار */
+        .hidden {
+            display: none !important;
+            opacity: 0;
+            visibility: hidden;
         }
 
         h2 {
@@ -173,9 +184,7 @@
             text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
-        .hidden {
-            display: none;
-        }
+
 
         /* تأثير تعتيم الخلفية */
         #menu-overlay {
@@ -193,7 +202,7 @@
         /* زر الهامبرجر المتحرك */
         #menu-toggle {
             position: fixed;
-            top: 25px;
+            top: 5px;
             right: 25px;
             width: 40px;
             height: 30px;
@@ -238,11 +247,30 @@
             transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             padding: 40px 20px;
             border-radius: 30px 0 0 30px;
+            display: flex;
+            flex-direction: column;
+            max-height: 100vh;
+            /* التأكد من أنها لا تتخطى طول الشاشة */
+            overflow-y: auto;
+            /* تفعيل التمرير العمودي */
+            padding-bottom: 20px;
+            /* مسافة أمان في الأسفل */
         }
 
         #side-menu.active {
             right: 0;
         }
+
+        /* لتحسين شكل السكرول بار ليصبح نحيفاً وشيك */
+        #side-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #side-menu::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
 
         /* قسم البروفايل داخل المنيو */
         .user-profile-section {
@@ -268,6 +296,9 @@
         .menu-list {
             list-style: none;
             padding: 0;
+            margin: 0;
+            flex: 1;
+            /* تجعل القائمة تأخذ المساحة المتاحة وتسمح بالتمرير */
         }
 
         .menu-list li {
@@ -321,10 +352,6 @@
             color: #e74a3b;
             border: 1px solid #ffe0e0;
         }
-
-        .hidden {
-            display: none !important;
-        }
     </style>
 </head>
 
@@ -343,6 +370,7 @@
             <div class="user-profile-section">
                 <div class="avatar"><i class="fas fa-user-tie"></i></div>
                 <h4 id="user-name-display">مرحباً بك</h4>
+                <p>لوحة التحكم السريعة</p>
             </div>
 
             <ul class="menu-list">
@@ -361,12 +389,18 @@
                 <li style="--i:3" onclick="goToPage('leave-status')">
                     <div class="icon-box"><i class="fas fa-clipboard-list"></i></div> <span>حالة الطلبات</span>
                 </li>
+                <li style="--i:6" onclick="goToPage('honda-task')">
+                    <div class="icon-box" style="background: #fff9db; color: #fcc419;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <span>تسكين هوندا</span>
+                </li>
                 <li id="install-menu-item" style="--i:5; display: none;" onclick="triggerInstall()">
-    <div class="icon-box" style="background: #eef2ff; color: var(--primary);">
-        <i class="fas fa-download"></i>
-    </div>
-    <span>تثبيت التطبيق</span>
-</li>
+                    <div class="icon-box" style="background: #eef2ff; color: var(--primary);">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <span>تثبيت التطبيق</span>
+                </li>
             </ul>
 
             <div class="menu-footer">
@@ -391,7 +425,7 @@
             <button class="btn-login" onclick="login()">دخول</button>
         </div>
 
-        
+
 
         <div id="main-page" class="card hidden">
             <h2 id="company-name">اسم الشركة</h2>
@@ -547,6 +581,104 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div id="honda-task-page" class="card hidden" style="max-height: 90vh; overflow-y: auto; padding-bottom: 80px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <button onclick="backToMain()"
+                    style="width: 40px; padding: 10px; margin: 0; background: #eee; color: #333; border-radius: 50%;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h2 style="margin: 0;">تسكين هوندا</h2>
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-toggle-on"></i>
+                <select id="honda-mode" onchange="toggleHondaFields()">
+                    <option value="بداية">بداية التسكين</option>
+                    <option value="نهاية">نهاية التسكين</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="honda-user" readonly style="background: #f9f9f9;">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-building"></i>
+                <select id="honda-office">
+                    <option value="">اختر المكتب...</option>
+                    <option value="مكتب قويسنا">مكتب قويسنا</option>
+                    <option value="مكتب شبين">مكتب شبين</option>
+                    <option value="مكتب تلا">مكتب تلا</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-motorcycle"></i>
+                <select id="honda-id">
+                    <option value="">رقم الهوندا...</option>
+                    <option value="G1">G1</option>
+                    <option value="G2">G2</option>
+                    <option value="G3">G3</option>
+                    <option value="D1">D1</option>
+                    <option value="D2">D2</option>
+                    <option value="D3">D3</option>
+                    <option value="D4">D4</option>
+                    <option value="M1">M1</option>
+                    <option value="M2">M2</option>
+                    <option value="TG">TG</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="display: flex; direction: ltr;">
+                <span
+                    style="background: #eee; padding: 10px; border-radius: 0 10px 10px 0; border: 2px solid #edf0f5; border-right: none; font-weight: bold; color: var(--primary);">CAI</span>
+                <input type="number" id="cai-number" placeholder="0000" style="border-radius: 10px 0 0 10px;">
+            </div>
+
+            <div id="ticket-section" class="hidden">
+                <div class="input-group">
+                    <i class="fas fa-ticket-alt"></i>
+                    <input type="text" id="honda-ticket" placeholder="رقم تكت التسكين">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-calendar-alt"></i>
+                <input type="date" id="honda-date">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-clock"></i>
+                <input type="time" id="honda-time">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-question-circle"></i>
+                <select id="honda-reason">
+                    <option value="">سبب التسكين...</option>
+                    <option value="الكهرباء قاطعة">الكهرباء قاطعة</option>
+                    <option value="العداد فاصل شحن">العداد فاصل شحن</option>
+                    <option value="العداد مسجل تلاعب">العداد مسجل تلاعب</option>
+                    <option value="العداد احمال زائدة">العداد احمال زائدة</option>
+                    <option value="ديزل اتصالات مبطل">ديزل اتصالات مبطل</option>
+                    <option value="الرنتل مبطل">الرنتل مبطل</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-broadcast-tower"></i>
+                <select id="honda-trans">
+                    <option value="">هل ترنسميشن؟</option>
+                    <option value="نعم">نعم</option>
+                    <option value="لا">لا</option>
+                </select>
+            </div>
+
+            <button class="btn-attendance" onclick="submitHonda()" id="honda-submit-btn">
+                <i class="fas fa-save"></i> <span>إرسال بداية التسكين</span>
+            </button>
         </div>
 
     </div>
@@ -719,36 +851,16 @@
             }
         }
 
-        // تعديل بسيط على دالة الانتقال
         function goToPage(page) {
-            toggleMenu(); // غلق المنيو
+            toggleMenu(); // غلق القائمة الجانبية
 
-            // هنا يمكنك إضافة منطق التنقل بين الصفحات
-            const titles = {
-                'attendance': 'تسجيل الحضور والغياب',
-                'leave-request': 'تقديم طلب إجازة جديد',
-                'leave-status': 'متابعة حالة طلباتك'
-            };
-
-            Swal.fire({
-                title: titles[page],
-                text: 'جاري تحميل القسم...',
-                icon: 'info',
-                timer: 1500,
-                showConfirmButton: false
-            });
-        }
-
-        // وظيفة التنقل بين الصفحات
-        // تحديث وظيفة التنقل بين الصفحات
-        function goToPage(page) {
-            toggleMenu(); // غلق القائمة
-
-            // إخفاء جميع الصفحات أولاً
+            // إخفاء جميع الصفحات أولاً لضمان عدم التداخل
             document.getElementById('main-page').classList.add('hidden');
             document.getElementById('leave-request-page').classList.add('hidden');
-            document.getElementById('attendance-history-page').classList.add('hidden'); // إخفاء السجل
+            document.getElementById('attendance-history-page').classList.add('hidden');
+            document.getElementById('honda-task-page').classList.add('hidden');
 
+            // إظهار الصفحة المطلوبة فقط بناءً على الاختيار
             if (page === 'attendance') {
                 document.getElementById('main-page').classList.remove('hidden');
             }
@@ -758,16 +870,23 @@
             else if (page === 'attendance-history') {
                 document.getElementById('attendance-history-page').classList.remove('hidden');
             }
+            else if (page === 'honda-task') {
+                document.getElementById('honda-task-page').classList.remove('hidden');
+                // ربط حقل المستخدم باسم الشخص الذي قام بتسجيل الدخول
+                document.getElementById('honda-user').value = document.getElementById('username').value;
+            }
             else if (page === 'leave-status') {
                 Swal.fire('حالة الطلبات', 'لا توجد طلبات سابقة لعرضها حالياً', 'info');
                 document.getElementById('main-page').classList.remove('hidden');
             }
         }
 
+
         // تحديث دالة العودة للرئيسية
         function backToMain() {
             document.getElementById('leave-request-page').classList.add('hidden');
-            document.getElementById('attendance-history-page').classList.add('hidden'); // إخفاء السجل عند العودة
+            document.getElementById('attendance-history-page').classList.add('hidden');
+            document.getElementById('honda-task-page').classList.add('hidden'); // إخفاء الهوندا
             document.getElementById('main-page').classList.remove('hidden');
         }
 
@@ -827,50 +946,86 @@
         }
 
         // تسجيل الـ Service Worker لتفعيل ميزة التثبيت
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-}
-
-let deferredPrompt; // متغير لتخزين طلب التثبيت
-
-// الاستماع لحدث التثبيت من المتصفح
-window.addEventListener('beforeinstallprompt', (e) => {
-    // منع المتصفح من إظهار الإشعار التلقائي
-    e.preventDefault();
-    // تخزين الحدث لاستخدامه لاحقاً
-    deferredPrompt = e;
-    // إظهار زر التثبيت في القائمة الجانبية
-    const installBtn = document.getElementById('install-menu-item');
-    if (installBtn) installBtn.style.display = 'flex';
-});
-
-// الدالة التي يتم استدعاؤها عند الضغط على الزر في المنيو
-function triggerInstall() {
-    if (!deferredPrompt) return;
-    
-    toggleMenu(); // غلق القائمة الجانبية أولاً
-    
-    // إظهار شاشة التثبيت للمستخدم
-    deferredPrompt.prompt();
-    
-    // معرفة قرار المستخدم
-    deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-            console.log('User accepted the install prompt');
-            document.getElementById('install-menu-item').style.display = 'none';
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
         }
-        deferredPrompt = null;
-    });
-}
 
-// إخفاء الزر إذا تم تثبيت التطبيق بالفعل
-window.addEventListener('appinstalled', (evt) => {
-    document.getElementById('install-menu-item').style.display = 'none';
-    Swal.fire('تم التثبيت', 'التطبيق الآن جاهز على سطح المكتب / الشاشة الرئيسية', 'success');
-});
+        let deferredPrompt; // متغير لتخزين طلب التثبيت
+
+        // الاستماع لحدث التثبيت من المتصفح
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // منع المتصفح من إظهار الإشعار التلقائي
+            e.preventDefault();
+            // تخزين الحدث لاستخدامه لاحقاً
+            deferredPrompt = e;
+            // إظهار زر التثبيت في القائمة الجانبية
+            const installBtn = document.getElementById('install-menu-item');
+            if (installBtn) installBtn.style.display = 'flex';
+        });
+
+        // الدالة التي يتم استدعاؤها عند الضغط على الزر في المنيو
+        function triggerInstall() {
+            if (!deferredPrompt) return;
+
+            toggleMenu(); // غلق القائمة الجانبية أولاً
+
+            // إظهار شاشة التثبيت للمستخدم
+            deferredPrompt.prompt();
+
+            // معرفة قرار المستخدم
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                    document.getElementById('install-menu-item').style.display = 'none';
+                }
+                deferredPrompt = null;
+            });
+        }
+
+        // إخفاء الزر إذا تم تثبيت التطبيق بالفعل
+        window.addEventListener('appinstalled', (evt) => {
+            document.getElementById('install-menu-item').style.display = 'none';
+            Swal.fire('تم التثبيت', 'التطبيق الآن جاهز على سطح المكتب / الشاشة الرئيسية', 'success');
+        });
+
+        // دالة للتحكم في ظهور حقل "رقم التكت" عند اختيار (نهاية التسكين)
+        function toggleHondaFields() {
+            const mode = document.getElementById('honda-mode').value;
+            const ticketSection = document.getElementById('ticket-section');
+            const submitBtnSpan = document.querySelector('#honda-submit-btn span');
+
+            if (mode === 'نهاية') {
+                ticketSection.classList.remove('hidden');
+                submitBtnSpan.innerText = "إرسال نهاية التسكين";
+            } else {
+                ticketSection.classList.add('hidden');
+                submitBtnSpan.innerText = "إرسال بداية التسكين";
+            }
+        }
+
+        // دالة إرسال بيانات التسكين
+        function submitHonda() {
+            const mode = document.getElementById('honda-mode').value;
+            const office = document.getElementById('honda-office').value;
+            const hondaId = document.getElementById('honda-id').value;
+            const cai = document.getElementById('cai-number').value;
+
+            if (!office || !hondaId || !cai) {
+                Swal.fire('تنبيه', 'برجاء إكمال البيانات الأساسية (المكتب، رقم الهوندا، و CAI)', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: 'تم الحفظ!',
+                text: `تم تسجيل ${mode} التسكين للهوندا ${hondaId} بنجاح`,
+                icon: 'success',
+                confirmButtonText: 'حسناً'
+            }).then(() => {
+                backToMain(); // العودة للرئيسية بعد النجاح
+            });
+        }
 
     </script>
 </body>
 
 </html>
-
