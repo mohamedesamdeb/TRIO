@@ -3,13 +3,13 @@
   "name": "نظام الحضور والانصراف الاحترافي",
   "icons": [
     {
-      "src": "./icon-192.png", 
+      "src": "./file.png", 
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "./icon-512.png",
+      "src": "./file.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
