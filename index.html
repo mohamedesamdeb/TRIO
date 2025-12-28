@@ -362,6 +362,12 @@
                 <li style="--i:3" onclick="goToPage('leave-status')">
                     <div class="icon-box"><i class="fas fa-clipboard-list"></i></div> <span>حالة الطلبات</span>
                 </li>
+                <li id="install-menu-item" style="--i:5; display: none;" onclick="triggerInstall()">
+    <div class="icon-box" style="background: #eef2ff; color: var(--primary);">
+        <i class="fas fa-download"></i>
+    </div>
+    <span>تثبيت التطبيق</span>
+</li>
             </ul>
 
             <div class="menu-footer">
@@ -385,6 +391,8 @@
             </div>
             <button class="btn-login" onclick="login()">دخول</button>
         </div>
+
+        
 
         <div id="main-page" class="card hidden">
             <h2 id="company-name">اسم الشركة</h2>
@@ -551,6 +559,8 @@
         </div>
         <h3 style="color: white; margin-top: 20px;">ثبات.. جاري التصوير</h3>
     </div>
+
+
 
     <script>
         function login() {
@@ -821,6 +831,44 @@
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
 }
+
+let deferredPrompt; // متغير لتخزين طلب التثبيت
+
+// الاستماع لحدث التثبيت من المتصفح
+window.addEventListener('beforeinstallprompt', (e) => {
+    // منع المتصفح من إظهار الإشعار التلقائي
+    e.preventDefault();
+    // تخزين الحدث لاستخدامه لاحقاً
+    deferredPrompt = e;
+    // إظهار زر التثبيت في القائمة الجانبية
+    const installBtn = document.getElementById('install-menu-item');
+    if (installBtn) installBtn.style.display = 'flex';
+});
+
+// الدالة التي يتم استدعاؤها عند الضغط على الزر في المنيو
+function triggerInstall() {
+    if (!deferredPrompt) return;
+    
+    toggleMenu(); // غلق القائمة الجانبية أولاً
+    
+    // إظهار شاشة التثبيت للمستخدم
+    deferredPrompt.prompt();
+    
+    // معرفة قرار المستخدم
+    deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+            document.getElementById('install-menu-item').style.display = 'none';
+        }
+        deferredPrompt = null;
+    });
+}
+
+// إخفاء الزر إذا تم تثبيت التطبيق بالفعل
+window.addEventListener('appinstalled', (evt) => {
+    document.getElementById('install-menu-item').style.display = 'none';
+    Swal.fire('تم التثبيت', 'التطبيق الآن جاهز على سطح المكتب / الشاشة الرئيسية', 'success');
+});
 
     </script>
 </body>
