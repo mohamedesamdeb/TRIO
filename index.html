@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
+
+    <meta name="theme-color" content="#4e73df">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>نظام الحضور والانصراف الاحترافي</title>
-    
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icon-192.png">
 
     <style>
-        * { box-sizing: border-box; touch-action: manipulation; }
-        
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
         :root {
             --primary: #4e73df;
             --success: #1cc88a;
@@ -18,10 +28,12 @@
             --dark: #2c3e50;
         }
 
-        body, html {
+        body,
+        html {
             height: 100%;
             margin: 0;
-            overflow: hidden; /* منع السكرول نهائياً */
+            overflow: hidden;
+            /* منع السكرول نهائياً */
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background: #f4f7f6;
         }
@@ -30,7 +42,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100dvh; /* يتكيف مع لوحة المفاتيح */
+            height: 100dvh;
+            /* يتكيف مع لوحة المفاتيح */
             padding: 15px;
         }
 
@@ -38,22 +51,34 @@
             background: white;
             padding: 25px;
             border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
             text-align: center;
             position: relative;
         }
 
-        h2 { color: var(--dark); margin-bottom: 20px; font-size: 1.4rem; }
-
-        .input-group { position: relative; margin-bottom: 12px; }
-        .input-group i { 
-            position: absolute; right: 15px; top: 50%; 
-            transform: translateY(-50%); color: var(--primary); 
+        h2 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
         }
-        
-        input, select {
+
+        .input-group {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .input-group i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+        }
+
+        input,
+        select {
             width: 100%;
             padding: 14px 45px 14px 15px;
             border: 2px solid #edf0f5;
@@ -79,9 +104,21 @@
             transition: 0.3s;
         }
 
-        .btn-login, .btn-geo { background: var(--primary); color: white; }
-        .btn-attendance { background: var(--success); color: white; }
-        .btn-leave { background: var(--danger); color: white; }
+        .btn-login,
+        .btn-geo {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-attendance {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-leave {
+            background: var(--danger);
+            color: white;
+        }
 
         #location-display {
             background: #eef2f7;
@@ -97,8 +134,11 @@
         /* حاوية الكاميرا المنبثقة */
         #camera-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
             display: none;
             flex-direction: column;
             justify-content: center;
@@ -115,443 +155,512 @@
             position: relative;
         }
 
-        video { width: 100%; height: 100%; object-fit: cover; }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
         #countdown {
             position: absolute;
-            top: 50%; left: 50%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 80px; color: white; font-weight: bold;
-            text-shadow: 0 0 20px rgba(0,0,0,0.5);
+            font-size: 80px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
-        .hidden { display: none; }
+        .hidden {
+            display: none;
+        }
 
-       /* تأثير تعتيم الخلفية */
-#menu-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(4px);
-    display: none;
-    z-index: 1999;
-}
+        /* تأثير تعتيم الخلفية */
+        #menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            z-index: 1999;
+        }
 
-/* زر الهامبرجر المتحرك */
-#menu-toggle {
-    position: fixed;
-    top: 25px; right: 25px;
-    width: 40px; height: 30px;
-    cursor: pointer; z-index: 2001;
-    display: none; flex-direction: column; justify-content: space-between;
-}
+        /* زر الهامبرجر المتحرك */
+        #menu-toggle {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 40px;
+            height: 30px;
+            cursor: pointer;
+            z-index: 2001;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+        }
 
-#menu-toggle div {
-    width: 100%; height: 4px;
-    background: var(--primary);
-    border-radius: 5px;
-    transition: 0.4s;
-}
+        #menu-toggle div {
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 5px;
+            transition: 0.4s;
+        }
 
-/* تحويل الزر لعلامة X عند الفتح */
-.open .bar1 { transform: rotate(-45deg) translate(-9px, 8px); }
-.open .bar2 { opacity: 0; }
-.open .bar3 { transform: rotate(45deg) translate(-9px, -8px); }
+        /* تحويل الزر لعلامة X عند الفتح */
+        .open .bar1 {
+            transform: rotate(-45deg) translate(-9px, 8px);
+        }
 
-/* القائمة الجانبية الزجاجية */
-#side-menu {
-    position: fixed;
-    top: 0; right: -300px;
-    width: 300px; height: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    z-index: 2000;
-    transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    padding: 40px 20px;
-    border-radius: 30px 0 0 30px;
-}
+        .open .bar2 {
+            opacity: 0;
+        }
 
-#side-menu.active { right: 0; }
+        .open .bar3 {
+            transform: rotate(45deg) translate(-9px, -8px);
+        }
 
-/* قسم البروفايل داخل المنيو */
-.user-profile-section { text-align: center; margin-bottom: 40px; }
-.avatar {
-    width: 70px; height: 70px;
-    background: var(--primary);
-    color: white;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 30px; margin: 0 auto 15px;
-    box-shadow: 0 10px 20px rgba(78,115,223,0.3);
-}
+        /* القائمة الجانبية الزجاجية */
+        #side-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            padding: 40px 20px;
+            border-radius: 30px 0 0 30px;
+        }
 
-/* قائمة الروابط وأنيميشن الظهور التدريجي */
-.menu-list { list-style: none; padding: 0; }
-.menu-list li {
-    background: #f8f9fc;
-    margin-bottom: 15px;
-    padding: 12px 15px;
-    border-radius: 15px;
-    display: flex; align-items: center; gap: 15px;
-    cursor: pointer;
-    transition: 0.3s;
-    transform: translateX(50px); opacity: 0; /* البداية للأنيميشن */
-}
+        #side-menu.active {
+            right: 0;
+        }
 
-#side-menu.active .menu-list li {
-    transform: translateX(0); opacity: 1;
-    transition: 0.4s ease forwards;
-    transition-delay: calc(var(--i) * 0.1s); /* تأخير لكل عنصر */
-}
+        /* قسم البروفايل داخل المنيو */
+        .user-profile-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-.icon-box {
-    width: 40px; height: 40px;
-    background: white;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--primary);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-}
+        .avatar {
+            width: 70px;
+            height: 70px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 0 auto 15px;
+            box-shadow: 0 10px 20px rgba(78, 115, 223, 0.3);
+        }
 
-.menu-list li:hover {
-    background: var(--primary); color: white;
-    transform: scale(1.05) !important;
-}
-.menu-list li:hover .icon-box { color: var(--primary); }
+        /* قائمة الروابط وأنيميشن الظهور التدريجي */
+        .menu-list {
+            list-style: none;
+            padding: 0;
+        }
 
-.btn-logout {
-    margin-top: 50px;
-    background: #fff0f0; color: #e74a3b;
-    border: 1px solid #ffe0e0;
-}
+        .menu-list li {
+            background: #f8f9fc;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            transform: translateX(50px);
+            opacity: 0;
+            /* البداية للأنيميشن */
+        }
 
-.hidden { display: none !important; }
+        #side-menu.active .menu-list li {
+            transform: translateX(0);
+            opacity: 1;
+            transition: 0.4s ease forwards;
+            transition-delay: calc(var(--i) * 0.1s);
+            /* تأخير لكل عنصر */
+        }
 
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-list li:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05) !important;
+        }
+
+        .menu-list li:hover .icon-box {
+            color: var(--primary);
+        }
+
+        .btn-logout {
+            margin-top: 50px;
+            background: #fff0f0;
+            color: #e74a3b;
+            border: 1px solid #ffe0e0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body>
 
     <div id="menu-overlay" onclick="toggleMenu()"></div>
 
-<div id="menu-toggle" onclick="toggleMenu()">
-    <div class="bar1"></div>
-    <div class="bar2"></div>
-    <div class="bar3"></div>
-</div>
+    <div id="menu-toggle" onclick="toggleMenu()">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+    </div>
 
-<nav id="side-menu">
-    <div class="menu-content">
-        <div class="user-profile-section">
-            <div class="avatar"><i class="fas fa-user-tie"></i></div>
-            <h4 id="user-name-display">مرحباً بك</h4>
-            <p>لوحة التحكم السريعة</p>
+    <nav id="side-menu">
+        <div class="menu-content">
+            <div class="user-profile-section">
+                <div class="avatar"><i class="fas fa-user-tie"></i></div>
+                <h4 id="user-name-display">مرحباً بك</h4>
+                <p>لوحة التحكم السريعة</p>
+            </div>
+
+            <ul class="menu-list">
+                <li style="--i:1" onclick="goToPage('attendance')">
+                    <div class="icon-box"><i class="fas fa-fingerprint"></i></div>
+                    <span>تسجيل الحضور</span>
+                </li>
+                <li style="--i:4" onclick="goToPage('attendance-history')">
+                    <div class="icon-box"><i class="fas fa-history"></i></div>
+                    <span>سجل الحضور</span>
+                </li>
+                <li style="--i:2" onclick="goToPage('leave-request')">
+                    <div class="icon-box"><i class="fas fa-paper-plane"></i></div>
+                    <span>طلب إجازة</span>
+                </li>
+                <li style="--i:3" onclick="goToPage('leave-status')">
+                    <div class="icon-box"><i class="fas fa-clipboard-list"></i></div> <span>حالة الطلبات</span>
+                </li>
+            </ul>
+
+            <div class="menu-footer">
+                <button onclick="location.reload()" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                </button>
+            </div>
         </div>
-        
-        <ul class="menu-list">
-            <li style="--i:1" onclick="goToPage('attendance')">
-                <div class="icon-box"><i class="fas fa-fingerprint"></i></div>
-                <span>تسجيل الحضور</span>
-            </li>
-            <li style="--i:4" onclick="goToPage('attendance-history')">
-    <div class="icon-box"><i class="fas fa-history"></i></div>
-    <span>سجل الحضور</span>
-</li>
-            <li style="--i:2" onclick="goToPage('leave-request')">
-                <div class="icon-box"><i class="fas fa-paper-plane"></i></div>
-                <span>طلب إجازة</span>
-            </li>
-            <li style="--i:3" onclick="goToPage('leave-status')">
-    <div class="icon-box"><i class="fas fa-clipboard-list"></i></div> <span>حالة الطلبات</span>
-</li>
-        </ul>
-        
-        <div class="menu-footer">
-            <button onclick="location.reload()" class="btn-logout">
-                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+    </nav>
+
+    <div class="page-wrapper">
+        <div id="login-page" class="card">
+            <h2>تسجيل الدخول</h2>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" placeholder="اسم المستخدم">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="كلمة المرور">
+            </div>
+            <button class="btn-login" onclick="login()">دخول</button>
+        </div>
+
+        <div id="main-page" class="card hidden">
+            <h2 id="company-name">اسم الشركة</h2>
+
+            <select id="tech-name" style="margin-bottom: 10px;">
+                <option value="">اختر اسم الفني...</option>
+                <option>على احمد طنطاوى منصور</option>
+                <option>شادى رأفت رفاعى محمود صالح</option>
+                <option>محمد حسين محمد عامر</option>
+                <option>مصطفي سامى مصطفي داود</option>
+                <option>أحمد محمد أحمد أبراهيم</option>
+                <option>محمود محمد عبدالحميد البليهى</option>
+                <option>سعيد حسين علي أسماعيل</option>
+                <option>محمود محمد محمود أحمد</option>
+                <option>باسم نشأت صالح</option>
+                <option>ابانوب زغلول عازر ميخائيل</option>
+                <option>محمد عبده توفيق ابوزيد</option>
+                <option>مجدى عبد الحميد احمد عبدالرحمن</option>
+                <option>أحمد عزت عبدالعزيز ابراهيم</option>
+                <option>احمد على عبد الحافظ مرسى</option>
+                <option>محمد احمد عبد الحميد احمد</option>
+                <option>ابراهيم حسنى عبده ابراهيم</option>
+                <option>فوزى محمد عبد الشافى مطيش</option>
+                <option>رزق سمير عازر ميخائيل</option>
+                <option>على حسن علي حسن</option>
+                <option>بلال رمضان قطب حسن</option>
+                <option>هانى عبدالحميد احمد عبد الفتاح</option>
+                <option>محمد احمد احمد محمد احمد</option>
+                <option>نادر نجيب حنا يعقوب</option>
+                <option>ايمن جمال جرجس ابراهيم</option>
+                <option>هيثم مصطفى مصطفى عبد اللطيف</option>
+            </select>
+
+            <select id="office" style="margin-bottom: 10px;">
+                <option value="">اختر المكتب...</option>
+                <option value="Gesr Suez">Gesr Suez</option>
+                <option value="Downtown">Downtown</option>
+                <option value="Mohandseen">Mohandseen</option>
+            </select>
+
+            <button class="btn-geo" onclick="getSuperFineLocation()">
+                <i class="fas fa-satellite"></i> تحديد موقع دقيق جداً
+            </button>
+
+            <div id="location-display">الموقع: بانتظار التحديد...</div>
+
+            <button class="btn-attendance" onclick="startProcess('حضور')">تسجيل حضور</button>
+            <button class="btn-leave" onclick="startProcess('انصراف')">تسجيل انصراف</button>
+
+            <p style="font-size: 10px; color: #777; margin: 0;">⚠️ يرجى التأكد من تشغيل الـ GPS عالي الدقة</p>
+        </div>
+
+        <div id="leave-request-page" class="card hidden">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <button onclick="backToMain()"
+                    style="width: 40px; padding: 10px; margin: 0; background: #eee; color: #333; border-radius: 50%;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h2 style="margin: 0;">طلب إجازة جديد</h2>
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-calendar-day"></i>
+                <select id="leave-type" onchange="checkLeaveType()">
+                    <option value="">اختر نوع الإجازة...</option>
+                    <option value="سنوية">إجازة سنوية</option>
+                    <option value="مرضية">إجازة مرضية</option>
+                    <option value="إذن">إذن خروج</option>
+                </select>
+            </div>
+
+            <div style="text-align: right; margin-bottom: 10px;">
+                <label style="font-size: 13px; color: var(--primary); font-weight: bold;">تاريخ بداية الإجازة
+                    (من):</label>
+                <div class="input-group">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="date" id="leave-start">
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-bottom: 10px;">
+                <label style="font-size: 13px; color: var(--primary); font-weight: bold;">تاريخ نهاية الإجازة
+                    (إلى):</label>
+                <div class="input-group">
+                    <i class="fas fa-calendar-check"></i>
+                    <input type="date" id="leave-end">
+                </div>
+            </div>
+
+            <div id="medical-upload-section" class="hidden" style="text-align: right; margin-bottom: 15px;">
+                <label style="font-size: 13px; color: var(--danger); font-weight: bold;">إرفاق التقارير الطبية
+                    (إجباري):</label>
+                <div class="input-group" style="margin-top: 5px;">
+                    <i class="fas fa-camera" style="z-index: 5;"></i>
+                    <input type="file" id="leave-files" multiple accept="image/*" style="padding-top: 10px;">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-comment-dots"></i>
+                <textarea id="leave-reason" placeholder="اكتب تفاصيل أو سبب الإجازة..."
+                    style="width: 100%; border-radius: 12px; border: 2px solid #edf0f5; padding: 10px 45px 10px 10px; height: 80px; font-family: inherit; outline: none;"></textarea>
+            </div>
+
+            <button class="btn-attendance" onclick="submitLeave()">
+                <i class="fas fa-paper-plane"></i> إرسال الطلب
             </button>
         </div>
-    </div>
-</nav>
 
-<div class="page-wrapper">
-    <div id="login-page" class="card">
-        <h2>تسجيل الدخول</h2>
-        <div class="input-group">
-            <i class="fas fa-user"></i>
-            <input type="text" id="username" placeholder="اسم المستخدم">
+        <div id="attendance-history-page" class="card hidden" style="max-width: 600px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <button onclick="backToMain()"
+                    style="width: 40px; padding: 10px; margin: 0; background: #eee; color: #333; border-radius: 50%;">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h2 style="margin: 0;">سجل الحضور: <span id="dynamic-user-history">المستخدم</span></h2>
+            </div>
+
+            <div style="overflow-x: auto; border-radius: 15px; border: 1px solid #edf0f5;">
+                <table
+                    style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; min-width: 500px;">
+                    <thead>
+                        <tr style="background: #f8f9fc; color: var(--primary); border-bottom: 2px solid #edf0f5;">
+                            <th style="padding: 12px;">التاريخ</th>
+                            <th style="padding: 12px;">الاسم</th>
+                            <th style="padding: 12px;">حضور</th>
+                            <th style="padding: 12px;">انصراف</th>
+                            <th style="padding: 12px;">تأخير</th>
+                            <th style="padding: 12px;">إضافي</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 12px; font-weight: bold;">2023-10-25</td>
+                            <td style="padding: 12px; color: #555;">أحمد محمد</td>
+                            <td style="padding: 12px; color: var(--success); font-weight: bold;">08:30</td>
+                            <td style="padding: 12px; color: var(--danger); font-weight: bold;">04:30</td>
+                            <td style="padding: 12px;"><span
+                                    style="background: #fff0f0; color: #e74a3b; padding: 2px 8px; border-radius: 5px;">00:30</span>
+                            </td>
+                            <td style="padding: 12px;"><span
+                                    style="background: #f0fff4; color: #28a745; padding: 2px 8px; border-radius: 5px;">01:00</span>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 12px; font-weight: bold;">2023-10-24</td>
+                            <td style="padding: 12px; color: #555;">أحمد محمد</td>
+                            <td style="padding: 12px; color: var(--success); font-weight: bold;">07:55</td>
+                            <td style="padding: 12px; color: var(--danger); font-weight: bold;">04:00</td>
+                            <td style="padding: 12px; color: #aaa;">--:--</td>
+                            <td style="padding: 12px; color: #aaa;">--:--</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="input-group">
-            <i class="fas fa-lock"></i>
-            <input type="password" id="password" placeholder="كلمة المرور">
+
+    </div>
+
+    <div id="camera-overlay">
+        <div id="camera-content">
+            <video id="video" autoplay playsinline></video>
+            <div id="countdown"></div>
         </div>
-        <button class="btn-login" onclick="login()">دخول</button>
+        <h3 style="color: white; margin-top: 20px;">ثبات.. جاري التصوير</h3>
     </div>
 
-    <div id="main-page" class="card hidden">
-        <h2 id="company-name">اسم الشركة</h2>
-        
-        <select id="tech-name" style="margin-bottom: 10px;">
-            <option value="">اختر اسم الفني...</option>
-            <option>على احمد طنطاوى منصور</option>
-            <option>شادى رأفت رفاعى محمود صالح</option>
-            <option>محمد حسين محمد عامر</option>
-            <option>مصطفي سامى مصطفي داود</option>
-            <option>أحمد محمد أحمد أبراهيم</option>
-            <option>محمود محمد عبدالحميد البليهى</option>
-            <option>سعيد حسين علي أسماعيل</option>
-            <option>محمود محمد محمود أحمد</option>
-            <option>باسم نشأت صالح</option>
-            <option>ابانوب زغلول عازر ميخائيل</option>
-            <option>محمد عبده توفيق ابوزيد</option>
-            <option>مجدى عبد الحميد احمد عبدالرحمن</option>
-            <option>أحمد عزت عبدالعزيز ابراهيم</option>
-            <option>احمد على عبد الحافظ مرسى</option>
-            <option>محمد احمد عبد الحميد احمد</option>
-            <option>ابراهيم حسنى عبده ابراهيم</option>
-            <option>فوزى محمد عبد الشافى مطيش</option>
-            <option>رزق سمير عازر ميخائيل</option>
-            <option>على حسن علي حسن</option>
-            <option>بلال رمضان قطب حسن</option>
-            <option>هانى عبدالحميد احمد عبد الفتاح</option>
-            <option>محمد احمد احمد محمد احمد</option>
-            <option>نادر نجيب حنا يعقوب</option>
-            <option>ايمن جمال جرجس ابراهيم</option>
-            <option>هيثم مصطفى مصطفى عبد اللطيف</option>
-        </select>
-        
-        <select id="office" style="margin-bottom: 10px;">
-            <option value="">اختر المكتب...</option>
-            <option value="Gesr Suez">Gesr Suez</option>
-            <option value="Downtown">Downtown</option>
-            <option value="Mohandseen">Mohandseen</option>
-        </select>
+    <script>
+        function login() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
 
-        <button class="btn-geo" onclick="getSuperFineLocation()">
-            <i class="fas fa-satellite"></i> تحديد موقع دقيق جداً
-        </button>
-        
-        <div id="location-display">الموقع: بانتظار التحديد...</div>
+            if (u === "admin" && p === "123") {
+                // تحديث الاسم في القائمة الجانبية
+                document.getElementById('user-name-display').innerText = "مرحباً، " + u;
 
-        <button class="btn-attendance" onclick="startProcess('حضور')">تسجيل حضور</button>
-        <button class="btn-leave" onclick="startProcess('انصراف')">تسجيل انصراف</button>
+                // تحديث العنوان في صفحة سجل الحضور [تعديل جديد]
+                document.getElementById('dynamic-user-history').innerText = u;
 
-        <p style="font-size: 10px; color: #777; margin: 0;">⚠️ يرجى التأكد من تشغيل الـ GPS عالي الدقة</p>
-    </div>
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('main-page').classList.remove('hidden');
+                document.getElementById('menu-toggle').style.display = 'flex';
 
-    <div id="leave-request-page" class="card hidden">
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-        <button onclick="backToMain()" style="width: 40px; padding: 10px; margin: 0; background: #eee; color: #333; border-radius: 50%;">
-            <i class="fas fa-arrow-right"></i>
-        </button>
-        <h2 style="margin: 0;">طلب إجازة جديد</h2>
-    </div>
-
-    <div class="input-group">
-        <i class="fas fa-calendar-day"></i>
-        <select id="leave-type" onchange="checkLeaveType()">
-            <option value="">اختر نوع الإجازة...</option>
-            <option value="سنوية">إجازة سنوية</option>
-            <option value="مرضية">إجازة مرضية</option>
-            <option value="إذن">إذن خروج</option>
-        </select>
-    </div>
-
-    <div style="text-align: right; margin-bottom: 10px;">
-        <label style="font-size: 13px; color: var(--primary); font-weight: bold;">تاريخ بداية الإجازة (من):</label>
-        <div class="input-group">
-            <i class="fas fa-calendar-alt"></i>
-            <input type="date" id="leave-start">
-        </div>
-    </div>
-
-    <div style="text-align: right; margin-bottom: 10px;">
-        <label style="font-size: 13px; color: var(--primary); font-weight: bold;">تاريخ نهاية الإجازة (إلى):</label>
-        <div class="input-group">
-            <i class="fas fa-calendar-check"></i>
-            <input type="date" id="leave-end">
-        </div>
-    </div>
-
-    <div id="medical-upload-section" class="hidden" style="text-align: right; margin-bottom: 15px;">
-        <label style="font-size: 13px; color: var(--danger); font-weight: bold;">إرفاق التقارير الطبية (إجباري):</label>
-        <div class="input-group" style="margin-top: 5px;">
-            <i class="fas fa-camera" style="z-index: 5;"></i>
-            <input type="file" id="leave-files" multiple accept="image/*" style="padding-top: 10px;">
-        </div>
-    </div>
-
-    <div class="input-group">
-        <i class="fas fa-comment-dots"></i>
-        <textarea id="leave-reason" placeholder="اكتب تفاصيل أو سبب الإجازة..." style="width: 100%; border-radius: 12px; border: 2px solid #edf0f5; padding: 10px 45px 10px 10px; height: 80px; font-family: inherit; outline: none;"></textarea>
-    </div>
-
-    <button class="btn-attendance" onclick="submitLeave()">
-        <i class="fas fa-paper-plane"></i> إرسال الطلب
-    </button>
-</div>
-
-<div id="attendance-history-page" class="card hidden" style="max-width: 600px;">
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-        <button onclick="backToMain()" style="width: 40px; padding: 10px; margin: 0; background: #eee; color: #333; border-radius: 50%;">
-            <i class="fas fa-arrow-right"></i>
-        </button>
-        <h2 style="margin: 0;">سجل الحضور: <span id="dynamic-user-history">المستخدم</span></h2>
-    </div>
-
-    <div style="overflow-x: auto; border-radius: 15px; border: 1px solid #edf0f5;">
-        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 12px; min-width: 500px;">
-            <thead>
-                <tr style="background: #f8f9fc; color: var(--primary); border-bottom: 2px solid #edf0f5;">
-                    <th style="padding: 12px;">التاريخ</th>
-                    <th style="padding: 12px;">الاسم</th>
-                    <th style="padding: 12px;">حضور</th>
-                    <th style="padding: 12px;">انصراف</th>
-                    <th style="padding: 12px;">تأخير</th>
-                    <th style="padding: 12px;">إضافي</th>
-                </tr>
-            </thead>
-            <tbody id="history-table-body">
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px; font-weight: bold;">2023-10-25</td>
-                    <td style="padding: 12px; color: #555;">أحمد محمد</td>
-                    <td style="padding: 12px; color: var(--success); font-weight: bold;">08:30</td>
-                    <td style="padding: 12px; color: var(--danger); font-weight: bold;">04:30</td>
-                    <td style="padding: 12px;"><span style="background: #fff0f0; color: #e74a3b; padding: 2px 8px; border-radius: 5px;">00:30</span></td>
-                    <td style="padding: 12px;"><span style="background: #f0fff4; color: #28a745; padding: 2px 8px; border-radius: 5px;">01:00</span></td>
-                </tr>
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px; font-weight: bold;">2023-10-24</td>
-                    <td style="padding: 12px; color: #555;">أحمد محمد</td>
-                    <td style="padding: 12px; color: var(--success); font-weight: bold;">07:55</td>
-                    <td style="padding: 12px; color: var(--danger); font-weight: bold;">04:00</td>
-                    <td style="padding: 12px; color: #aaa;">--:--</td>
-                    <td style="padding: 12px; color: #aaa;">--:--</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-</div>
-
-<div id="camera-overlay">
-    <div id="camera-content">
-        <video id="video" autoplay playsinline></video>
-        <div id="countdown"></div>
-    </div>
-    <h3 style="color: white; margin-top: 20px;">ثبات.. جاري التصوير</h3>
-</div>
-
-<script>
-   function login() {
-    const u = document.getElementById('username').value;
-    const p = document.getElementById('password').value;
-    
-    if(u === "admin" && p === "123") {
-        // تحديث الاسم في القائمة الجانبية
-        document.getElementById('user-name-display').innerText = "مرحباً، " + u;
-        
-        // تحديث العنوان في صفحة سجل الحضور [تعديل جديد]
-        document.getElementById('dynamic-user-history').innerText = u;
-        
-        document.getElementById('login-page').style.display = 'none';
-        document.getElementById('main-page').classList.remove('hidden');
-        document.getElementById('menu-toggle').style.display = 'flex';
-        
-        // اختيارياً: يمكنك استدعاء دالة هنا لملء الجدول ببيانات هذا المستخدم فقط من قاعدة بياناتك
-    } else {
-        Swal.fire({ icon: 'error', title: 'خطأ', text: 'بيانات الدخول غير صحيحة' });
-    }
-}
-
-    let currentLat, currentLon, locationCaptured = false;
-
-    // دالة جلب الموقع بدقة فائقة
-    async function getSuperFineLocation() {
-        const display = document.getElementById('location-display');
-        
-        if (!navigator.geolocation) {
-            Swal.fire('خطأ', 'جهازك لا يدعم الـ GPS', 'error');
-            return;
+                // اختيارياً: يمكنك استدعاء دالة هنا لملء الجدول ببيانات هذا المستخدم فقط من قاعدة بياناتك
+            } else {
+                Swal.fire({ icon: 'error', title: 'خطأ', text: 'بيانات الدخول غير صحيحة' });
+            }
         }
 
-        display.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الاتصال بالأقمار الصناعية...';
-        
-        // خيارات الدقة القصوى
-        const options = {
-            enableHighAccuracy: true, // تفعيل أعلى دقة (GPS)
-            timeout: 15000,           // انتظار 15 ثانية كحد أقصى
-            maximumAge: 0             // عدم استخدام موقع مخزن قديم
-        };
+        let currentLat, currentLon, locationCaptured = false;
 
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            currentLat = pos.coords.latitude;
-            currentLon = pos.coords.longitude;
-            const accuracy = pos.coords.accuracy; // دقة الموقع بالأمتار
+        // دالة جلب الموقع بدقة فائقة
+        async function getSuperFineLocation() {
+            const display = document.getElementById('location-display');
 
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLat}&lon=${currentLon}&accept-language=ar`);
-                const data = await res.json();
-                const address = data.display_name;
+            if (!navigator.geolocation) {
+                Swal.fire('خطأ', 'جهازك لا يدعم الـ GPS', 'error');
+                return;
+            }
 
-                display.innerHTML = `
+            display.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الاتصال بالأقمار الصناعية...';
+
+            // خيارات الدقة القصوى
+            const options = {
+                enableHighAccuracy: true, // تفعيل أعلى دقة (GPS)
+                timeout: 15000,           // انتظار 15 ثانية كحد أقصى
+                maximumAge: 0             // عدم استخدام موقع مخزن قديم
+            };
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                currentLat = pos.coords.latitude;
+                currentLon = pos.coords.longitude;
+                const accuracy = pos.coords.accuracy; // دقة الموقع بالأمتار
+
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${currentLat}&lon=${currentLon}&accept-language=ar`);
+                    const data = await res.json();
+                    const address = data.display_name;
+
+                    display.innerHTML = `
                     <b>📍 تم التحديد بدقة (±${accuracy.toFixed(1)} متر):</b><br>
                     <span style="color:var(--dark)">${address}</span>
                 `;
-                locationCaptured = true;
-                Swal.fire({ icon: 'success', title: 'تم التحديد بدقة', text: `نسبة الخطأ فقط ${accuracy.toFixed(1)} متر`, timer: 2000 });
-            } catch (e) {
-                display.innerText = `تم تحديد الإحداثيات: ${currentLat}, ${currentLon}`;
+                    locationCaptured = true;
+                    Swal.fire({ icon: 'success', title: 'تم التحديد بدقة', text: `نسبة الخطأ فقط ${accuracy.toFixed(1)} متر`, timer: 2000 });
+                } catch (e) {
+                    display.innerText = `تم تحديد الإحداثيات: ${currentLat}, ${currentLon}`;
+                }
+            }, (err) => {
+                Swal.fire('خطأ', 'برجاء تفعيل الموقع في إعدادات الموبايل', 'error');
+                display.innerText = "فشل التحديد!";
+            }, options);
+        }
+
+        async function startProcess(type) {
+            const tech = document.getElementById('tech-name').value;
+            const office = document.getElementById('office').value;
+
+            if (!tech || !office) {
+                Swal.fire('تنبيه', 'برجاء اختيار الفني والمكتب', 'warning');
+                return;
             }
-        }, (err) => {
-            Swal.fire('خطأ', 'برجاء تفعيل الموقع في إعدادات الموبايل', 'error');
-            display.innerText = "فشل التحديد!";
-        }, options);
-    }
+            if (!locationCaptured) {
+                Swal.fire('تنبيه', 'يجب تحديد الموقع الجغرافي أولاً', 'warning');
+                return;
+            }
 
-    async function startProcess(type) {
-        const tech = document.getElementById('tech-name').value;
-        const office = document.getElementById('office').value;
+            const overlay = document.getElementById('camera-overlay');
+            const video = document.getElementById('video');
+            const countEl = document.getElementById('countdown');
 
-        if(!tech || !office) {
-            Swal.fire('تنبيه', 'برجاء اختيار الفني والمكتب', 'warning');
-            return;
-        }
-        if(!locationCaptured) {
-            Swal.fire('تنبيه', 'يجب تحديد الموقع الجغرافي أولاً', 'warning');
-            return;
-        }
+            overlay.style.display = 'flex';
 
-        const overlay = document.getElementById('camera-overlay');
-        const video = document.getElementById('video');
-        const countEl = document.getElementById('countdown');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                video.srcObject = stream;
 
-        overlay.style.display = 'flex';
+                let timer = 3;
+                countEl.innerText = timer;
 
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-            video.srcObject = stream;
-            
-            let timer = 3;
-            countEl.innerText = timer;
+                const interval = setInterval(() => {
+                    timer--;
+                    if (timer > 0) {
+                        countEl.innerText = timer;
+                    } else {
+                        clearInterval(interval);
+                        countEl.innerText = "📸";
+                        setTimeout(() => {
+                            stream.getTracks().forEach(t => t.stop());
+                            overlay.style.display = 'none';
+                            // --- إضافة البيانات للجدول تلقائياً ---
+                            const tableBody = document.getElementById('history-table-body');
+                            const today = new Date().toLocaleDateString('en-CA'); // تاريخ اليوم (YYYY-MM-DD)
+                            const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                            const loggedInUser = document.getElementById('username').value; // جلب اسم المستخدم الحالي
 
-            const interval = setInterval(() => {
-                timer--;
-                if(timer > 0) {
-                    countEl.innerText = timer;
-                } else {
-                    clearInterval(interval);
-                    countEl.innerText = "📸";
-                    setTimeout(() => {
-                        stream.getTracks().forEach(t => t.stop());
-                        overlay.style.display = 'none';
-                        // --- إضافة البيانات للجدول تلقائياً ---
-const tableBody = document.getElementById('history-table-body');
-const today = new Date().toLocaleDateString('en-CA'); // تاريخ اليوم (YYYY-MM-DD)
-const now = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-const loggedInUser = document.getElementById('username').value; // جلب اسم المستخدم الحالي
-
-const newRow = `
+                            const newRow = `
     <tr style="border-bottom: 1px solid #eee;">
         <td style="padding: 12px; font-weight: bold;">${today}</td>
         <td style="padding: 12px; color: #555;">${loggedInUser}</td>
@@ -562,151 +671,157 @@ const newRow = `
     </tr>
 `;
 
-// إضافة الصف الجديد في أعلى الجدول
-tableBody.innerHTML = newRow + tableBody.innerHTML;
-// --------------------------------------
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'تم بنجاح',
-                            text: `تم تسجيل ${type} للفني ${tech} في مكتب ${office}`,
-                            confirmButtonText: 'ممتاز'
-                        });
-                    }, 600);
-                }
-            }, 1000);
-        } catch(e) {
-            Swal.fire('خطأ', 'يجب السماح بفتح الكاميرا', 'error');
-            overlay.style.display = 'none';
+                            // إضافة الصف الجديد في أعلى الجدول
+                            tableBody.innerHTML = newRow + tableBody.innerHTML;
+                            // --------------------------------------
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم بنجاح',
+                                text: `تم تسجيل ${type} للفني ${tech} في مكتب ${office}`,
+                                confirmButtonText: 'ممتاز'
+                            });
+                        }, 600);
+                    }
+                }, 1000);
+            } catch (e) {
+                Swal.fire('خطأ', 'يجب السماح بفتح الكاميرا', 'error');
+                overlay.style.display = 'none';
+            }
         }
-    }
 
-    function toggleMenu() {
-    document.getElementById('side-menu').classList.toggle('active');
+        function toggleMenu() {
+            document.getElementById('side-menu').classList.toggle('active');
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('side-menu');
+            const btn = document.getElementById('menu-toggle');
+            const overlay = document.getElementById('menu-overlay');
+
+            menu.classList.toggle('active');
+            btn.classList.toggle('open');
+
+            // إظهار أو إخفاء التعتيم خلف القائمة
+            if (menu.classList.contains('active')) {
+                overlay.style.display = 'block';
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+
+        // تعديل بسيط على دالة الانتقال
+        function goToPage(page) {
+            toggleMenu(); // غلق المنيو
+
+            // هنا يمكنك إضافة منطق التنقل بين الصفحات
+            const titles = {
+                'attendance': 'تسجيل الحضور والغياب',
+                'leave-request': 'تقديم طلب إجازة جديد',
+                'leave-status': 'متابعة حالة طلباتك'
+            };
+
+            Swal.fire({
+                title: titles[page],
+                text: 'جاري تحميل القسم...',
+                icon: 'info',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        // وظيفة التنقل بين الصفحات
+        // تحديث وظيفة التنقل بين الصفحات
+        function goToPage(page) {
+            toggleMenu(); // غلق القائمة
+
+            // إخفاء جميع الصفحات أولاً
+            document.getElementById('main-page').classList.add('hidden');
+            document.getElementById('leave-request-page').classList.add('hidden');
+            document.getElementById('attendance-history-page').classList.add('hidden'); // إخفاء السجل
+
+            if (page === 'attendance') {
+                document.getElementById('main-page').classList.remove('hidden');
+            }
+            else if (page === 'leave-request') {
+                document.getElementById('leave-request-page').classList.remove('hidden');
+            }
+            else if (page === 'attendance-history') {
+                document.getElementById('attendance-history-page').classList.remove('hidden');
+            }
+            else if (page === 'leave-status') {
+                Swal.fire('حالة الطلبات', 'لا توجد طلبات سابقة لعرضها حالياً', 'info');
+                document.getElementById('main-page').classList.remove('hidden');
+            }
+        }
+
+        // تحديث دالة العودة للرئيسية
+        function backToMain() {
+            document.getElementById('leave-request-page').classList.add('hidden');
+            document.getElementById('attendance-history-page').classList.add('hidden'); // إخفاء السجل عند العودة
+            document.getElementById('main-page').classList.remove('hidden');
+        }
+
+        // دالة إرسال الطلب
+        // دالة لمراقبة نوع الإجازة وإظهار حقل الرفع
+        function checkLeaveType() {
+            const type = document.getElementById('leave-type').value;
+            const uploadSection = document.getElementById('medical-upload-section');
+
+            if (type === 'مرضية') {
+                uploadSection.classList.remove('hidden');
+            } else {
+                uploadSection.classList.add('hidden');
+                document.getElementById('leave-files').value = ''; // مسح الملفات إذا غير النوع
+            }
+        }
+
+        // تحديث دالة إرسال الطلب مع التحقق من الصور
+        function submitLeave() {
+            const type = document.getElementById('leave-type').value;
+            const start = document.getElementById('leave-start').value;
+            const end = document.getElementById('leave-end').value;
+            const files = document.getElementById('leave-files').files;
+
+            // 1. التحقق من الحقول الأساسية
+            if (!type || !start || !end) {
+                Swal.fire('تنبيه', 'برجاء تحديد نوع الإجازة وتاريخ البداية والنهاية', 'warning');
+                return;
+            }
+
+            // 2. التحقق الإجباري من الصور في حالة الإجازة المرضية
+            if (type === 'مرضية' && files.length === 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'مرفقات ناقصة',
+                    text: 'يجب رفع صورة التقرير الطبي لتقديم إجازة مرضية',
+                    confirmButtonText: 'حسناً'
+                });
+                return;
+            }
+
+            // نجاح العملية
+            Swal.fire({
+                title: 'تم الإرسال!',
+                text: 'تم تقديم طلبك بنجاح وجاري مراجعة المرفقات',
+                icon: 'success',
+                confirmButtonText: 'ممتاز'
+            }).then(() => {
+                // تفريغ الفورم والعودة
+                document.getElementById('leave-type').value = '';
+                document.getElementById('leave-start').value = '';
+                document.getElementById('leave-end').value = '';
+                document.getElementById('leave-files').value = '';
+                document.getElementById('medical-upload-section').classList.add('hidden');
+                backToMain();
+            });
+        }
+
+        // تسجيل الـ Service Worker لتفعيل ميزة التثبيت
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
 }
 
-function toggleMenu() {
-    const menu = document.getElementById('side-menu');
-    const btn = document.getElementById('menu-toggle');
-    const overlay = document.getElementById('menu-overlay');
-    
-    menu.classList.toggle('active');
-    btn.classList.toggle('open');
-    
-    // إظهار أو إخفاء التعتيم خلف القائمة
-    if (menu.classList.contains('active')) {
-        overlay.style.display = 'block';
-    } else {
-        overlay.style.display = 'none';
-    }
-}
-
-// تعديل بسيط على دالة الانتقال
-function goToPage(page) {
-    toggleMenu(); // غلق المنيو
-    
-    // هنا يمكنك إضافة منطق التنقل بين الصفحات
-    const titles = {
-        'attendance': 'تسجيل الحضور والغياب',
-        'leave-request': 'تقديم طلب إجازة جديد',
-        'leave-status': 'متابعة حالة طلباتك'
-    };
-    
-    Swal.fire({
-        title: titles[page],
-        text: 'جاري تحميل القسم...',
-        icon: 'info',
-        timer: 1500,
-        showConfirmButton: false
-    });
-}
-
-// وظيفة التنقل بين الصفحات
-// تحديث وظيفة التنقل بين الصفحات
-function goToPage(page) {
-    toggleMenu(); // غلق القائمة
-    
-    // إخفاء جميع الصفحات أولاً
-    document.getElementById('main-page').classList.add('hidden');
-    document.getElementById('leave-request-page').classList.add('hidden');
-    document.getElementById('attendance-history-page').classList.add('hidden'); // إخفاء السجل
-    
-    if(page === 'attendance') {
-        document.getElementById('main-page').classList.remove('hidden');
-    } 
-    else if(page === 'leave-request') {
-        document.getElementById('leave-request-page').classList.remove('hidden');
-    }
-    else if(page === 'attendance-history') {
-        document.getElementById('attendance-history-page').classList.remove('hidden');
-    }
-    else if(page === 'leave-status') {
-        Swal.fire('حالة الطلبات', 'لا توجد طلبات سابقة لعرضها حالياً', 'info');
-        document.getElementById('main-page').classList.remove('hidden');
-    }
-}
-
-// تحديث دالة العودة للرئيسية
-function backToMain() {
-    document.getElementById('leave-request-page').classList.add('hidden');
-    document.getElementById('attendance-history-page').classList.add('hidden'); // إخفاء السجل عند العودة
-    document.getElementById('main-page').classList.remove('hidden');
-}
-
-// دالة إرسال الطلب
-// دالة لمراقبة نوع الإجازة وإظهار حقل الرفع
-function checkLeaveType() {
-    const type = document.getElementById('leave-type').value;
-    const uploadSection = document.getElementById('medical-upload-section');
-    
-    if (type === 'مرضية') {
-        uploadSection.classList.remove('hidden');
-    } else {
-        uploadSection.classList.add('hidden');
-        document.getElementById('leave-files').value = ''; // مسح الملفات إذا غير النوع
-    }
-}
-
-// تحديث دالة إرسال الطلب مع التحقق من الصور
-function submitLeave() {
-    const type = document.getElementById('leave-type').value;
-    const start = document.getElementById('leave-start').value;
-    const end = document.getElementById('leave-end').value;
-    const files = document.getElementById('leave-files').files;
-
-    // 1. التحقق من الحقول الأساسية
-    if(!type || !start || !end) {
-        Swal.fire('تنبيه', 'برجاء تحديد نوع الإجازة وتاريخ البداية والنهاية', 'warning');
-        return;
-    }
-
-    // 2. التحقق الإجباري من الصور في حالة الإجازة المرضية
-    if(type === 'مرضية' && files.length === 0) {
-        Swal.fire({
-            icon: 'error',
-            title: 'مرفقات ناقصة',
-            text: 'يجب رفع صورة التقرير الطبي لتقديم إجازة مرضية',
-            confirmButtonText: 'حسناً'
-        });
-        return;
-    }
-
-    // نجاح العملية
-    Swal.fire({
-        title: 'تم الإرسال!',
-        text: 'تم تقديم طلبك بنجاح وجاري مراجعة المرفقات',
-        icon: 'success',
-        confirmButtonText: 'ممتاز'
-    }).then(() => {
-        // تفريغ الفورم والعودة
-        document.getElementById('leave-type').value = '';
-        document.getElementById('leave-start').value = '';
-        document.getElementById('leave-end').value = '';
-        document.getElementById('leave-files').value = '';
-        document.getElementById('medical-upload-section').classList.add('hidden');
-        backToMain();
-    });
-}
-
-</script>
+    </script>
 </body>
+
 </html>
