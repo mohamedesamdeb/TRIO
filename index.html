@@ -126,9 +126,149 @@
         }
 
         .hidden { display: none; }
+
+       /* تأثير تعتيم الخلفية */
+#menu-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    display: none;
+    z-index: 1999;
+}
+
+/* زر الهامبرجر المتحرك */
+#menu-toggle {
+    position: fixed;
+    top: 25px; right: 25px;
+    width: 40px; height: 30px;
+    cursor: pointer; z-index: 2001;
+    display: none; flex-direction: column; justify-content: space-between;
+}
+
+#menu-toggle div {
+    width: 100%; height: 4px;
+    background: var(--primary);
+    border-radius: 5px;
+    transition: 0.4s;
+}
+
+/* تحويل الزر لعلامة X عند الفتح */
+.open .bar1 { transform: rotate(-45deg) translate(-9px, 8px); }
+.open .bar2 { opacity: 0; }
+.open .bar3 { transform: rotate(45deg) translate(-9px, -8px); }
+
+/* القائمة الجانبية الزجاجية */
+#side-menu {
+    position: fixed;
+    top: 0; right: -300px;
+    width: 300px; height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 2000;
+    transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    padding: 40px 20px;
+    border-radius: 30px 0 0 30px;
+}
+
+#side-menu.active { right: 0; }
+
+/* قسم البروفايل داخل المنيو */
+.user-profile-section { text-align: center; margin-bottom: 40px; }
+.avatar {
+    width: 70px; height: 70px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; margin: 0 auto 15px;
+    box-shadow: 0 10px 20px rgba(78,115,223,0.3);
+}
+
+/* قائمة الروابط وأنيميشن الظهور التدريجي */
+.menu-list { list-style: none; padding: 0; }
+.menu-list li {
+    background: #f8f9fc;
+    margin-bottom: 15px;
+    padding: 12px 15px;
+    border-radius: 15px;
+    display: flex; align-items: center; gap: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+    transform: translateX(50px); opacity: 0; /* البداية للأنيميشن */
+}
+
+#side-menu.active .menu-list li {
+    transform: translateX(0); opacity: 1;
+    transition: 0.4s ease forwards;
+    transition-delay: calc(var(--i) * 0.1s); /* تأخير لكل عنصر */
+}
+
+.icon-box {
+    width: 40px; height: 40px;
+    background: white;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--primary);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.menu-list li:hover {
+    background: var(--primary); color: white;
+    transform: scale(1.05) !important;
+}
+.menu-list li:hover .icon-box { color: var(--primary); }
+
+.btn-logout {
+    margin-top: 50px;
+    background: #fff0f0; color: #e74a3b;
+    border: 1px solid #ffe0e0;
+}
+
+.hidden { display: none !important; }
+
     </style>
 </head>
 <body>
+
+    <div id="menu-overlay" onclick="toggleMenu()"></div>
+
+<div id="menu-toggle" onclick="toggleMenu()">
+    <div class="bar1"></div>
+    <div class="bar2"></div>
+    <div class="bar3"></div>
+</div>
+
+<nav id="side-menu">
+    <div class="menu-content">
+        <div class="user-profile-section">
+            <div class="avatar"><i class="fas fa-user-tie"></i></div>
+            <h4 id="user-name-display">مرحباً بك</h4>
+            <p>لوحة التحكم السريعة</p>
+        </div>
+        
+        <ul class="menu-list">
+            <li style="--i:1" onclick="goToPage('attendance')">
+                <div class="icon-box"><i class="fas fa-fingerprint"></i></div>
+                <span>تسجيل الحضور</span>
+            </li>
+            <li style="--i:2" onclick="goToPage('leave-request')">
+                <div class="icon-box"><i class="fas fa-paper-plane"></i></div>
+                <span>طلب إجازة</span>
+            </li>
+            <li style="--i:3" onclick="goToPage('leave-status')">
+                <div class="icon-box"><i class="fas fa-clock-rotate-left"></i></div>
+                <span>حالة الطلبات</span>
+            </li>
+        </ul>
+        
+        <div class="menu-footer">
+            <button onclick="location.reload()" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+            </button>
+        </div>
+    </div>
+</nav>
 
 <div class="page-wrapper">
     <div id="login-page" class="card">
@@ -194,6 +334,59 @@
 
         <p style="font-size: 10px; color: #777; margin: 0;">⚠️ يرجى التأكد من تشغيل الـ GPS عالي الدقة</p>
     </div>
+
+    <div id="leave-request-page" class="card hidden">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <button onclick="backToMain()" style="width: 40px; padding: 10px; margin: 0; background: #eee; color: #333; border-radius: 50%;">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+        <h2 style="margin: 0;">طلب إجازة جديد</h2>
+    </div>
+
+    <div class="input-group">
+        <i class="fas fa-calendar-day"></i>
+        <select id="leave-type" onchange="checkLeaveType()">
+            <option value="">اختر نوع الإجازة...</option>
+            <option value="سنوية">إجازة سنوية</option>
+            <option value="مرضية">إجازة مرضية</option>
+            <option value="إذن">إذن خروج</option>
+        </select>
+    </div>
+
+    <div style="text-align: right; margin-bottom: 10px;">
+        <label style="font-size: 13px; color: var(--primary); font-weight: bold;">تاريخ بداية الإجازة (من):</label>
+        <div class="input-group">
+            <i class="fas fa-calendar-alt"></i>
+            <input type="date" id="leave-start">
+        </div>
+    </div>
+
+    <div style="text-align: right; margin-bottom: 10px;">
+        <label style="font-size: 13px; color: var(--primary); font-weight: bold;">تاريخ نهاية الإجازة (إلى):</label>
+        <div class="input-group">
+            <i class="fas fa-calendar-check"></i>
+            <input type="date" id="leave-end">
+        </div>
+    </div>
+
+    <div id="medical-upload-section" class="hidden" style="text-align: right; margin-bottom: 15px;">
+        <label style="font-size: 13px; color: var(--danger); font-weight: bold;">إرفاق التقارير الطبية (إجباري):</label>
+        <div class="input-group" style="margin-top: 5px;">
+            <i class="fas fa-camera" style="z-index: 5;"></i>
+            <input type="file" id="leave-files" multiple accept="image/*" style="padding-top: 10px;">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <i class="fas fa-comment-dots"></i>
+        <textarea id="leave-reason" placeholder="اكتب تفاصيل أو سبب الإجازة..." style="width: 100%; border-radius: 12px; border: 2px solid #edf0f5; padding: 10px 45px 10px 10px; height: 80px; font-family: inherit; outline: none;"></textarea>
+    </div>
+
+    <button class="btn-attendance" onclick="submitLeave()">
+        <i class="fas fa-paper-plane"></i> إرسال الطلب
+    </button>
+</div>
+
 </div>
 
 <div id="camera-overlay">
@@ -205,16 +398,26 @@
 </div>
 
 <script>
-    function login() {
-        const u = document.getElementById('username').value;
-        const p = document.getElementById('password').value;
-        if(u === "admin" && p === "123") {
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('main-page').classList.remove('hidden');
-        } else {
-            Swal.fire({ icon: 'error', title: 'خطأ', text: 'بيانات الدخول غير صحيحة', confirmButtonText: 'حاول مجدداً' });
-        }
+   function login() {
+    const u = document.getElementById('username').value;
+    const p = document.getElementById('password').value;
+    
+    if(u === "admin" && p === "123") {
+        // تحديث اسم المستخدم في القائمة الجانبية قبل الانتقال للصفحة الرئيسية
+        document.getElementById('user-name-display').innerText = "مرحباً، " + u;
+        
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('main-page').classList.remove('hidden');
+        document.getElementById('menu-toggle').style.display = 'flex';
+    } else {
+        Swal.fire({ 
+            icon: 'error', 
+            title: 'خطأ', 
+            text: 'بيانات الدخول غير صحيحة', 
+            confirmButtonText: 'حاول مجدداً' 
+        });
     }
+}
 
     let currentLat, currentLon, locationCaptured = false;
 
@@ -311,6 +514,128 @@
             overlay.style.display = 'none';
         }
     }
+
+    function toggleMenu() {
+    document.getElementById('side-menu').classList.toggle('active');
+}
+
+function toggleMenu() {
+    const menu = document.getElementById('side-menu');
+    const btn = document.getElementById('menu-toggle');
+    const overlay = document.getElementById('menu-overlay');
+    
+    menu.classList.toggle('active');
+    btn.classList.toggle('open');
+    
+    // إظهار أو إخفاء التعتيم خلف القائمة
+    if (menu.classList.contains('active')) {
+        overlay.style.display = 'block';
+    } else {
+        overlay.style.display = 'none';
+    }
+}
+
+// تعديل بسيط على دالة الانتقال
+function goToPage(page) {
+    toggleMenu(); // غلق المنيو
+    
+    // هنا يمكنك إضافة منطق التنقل بين الصفحات
+    const titles = {
+        'attendance': 'تسجيل الحضور والغياب',
+        'leave-request': 'تقديم طلب إجازة جديد',
+        'leave-status': 'متابعة حالة طلباتك'
+    };
+    
+    Swal.fire({
+        title: titles[page],
+        text: 'جاري تحميل القسم...',
+        icon: 'info',
+        timer: 1500,
+        showConfirmButton: false
+    });
+}
+
+// وظيفة التنقل بين الصفحات
+function goToPage(page) {
+    toggleMenu(); // غلق القائمة
+    
+    // إخفاء جميع الصفحات أولاً
+    document.getElementById('main-page').classList.add('hidden');
+    document.getElementById('leave-request-page').classList.add('hidden');
+    
+    if(page === 'attendance') {
+        document.getElementById('main-page').classList.remove('hidden');
+    } 
+    else if(page === 'leave-request') {
+        document.getElementById('leave-request-page').classList.remove('hidden');
+    }
+    else if(page === 'leave-status') {
+        Swal.fire('حالة الطلبات', 'لا توجد طلبات سابقة لعرضها حالياً', 'info');
+        document.getElementById('main-page').classList.remove('hidden');
+    }
+}
+
+// دالة العودة للرئيسية
+function backToMain() {
+    document.getElementById('leave-request-page').classList.add('hidden');
+    document.getElementById('main-page').classList.remove('hidden');
+}
+
+// دالة إرسال الطلب
+// دالة لمراقبة نوع الإجازة وإظهار حقل الرفع
+function checkLeaveType() {
+    const type = document.getElementById('leave-type').value;
+    const uploadSection = document.getElementById('medical-upload-section');
+    
+    if (type === 'مرضية') {
+        uploadSection.classList.remove('hidden');
+    } else {
+        uploadSection.classList.add('hidden');
+        document.getElementById('leave-files').value = ''; // مسح الملفات إذا غير النوع
+    }
+}
+
+// تحديث دالة إرسال الطلب مع التحقق من الصور
+function submitLeave() {
+    const type = document.getElementById('leave-type').value;
+    const start = document.getElementById('leave-start').value;
+    const end = document.getElementById('leave-end').value;
+    const files = document.getElementById('leave-files').files;
+
+    // 1. التحقق من الحقول الأساسية
+    if(!type || !start || !end) {
+        Swal.fire('تنبيه', 'برجاء تحديد نوع الإجازة وتاريخ البداية والنهاية', 'warning');
+        return;
+    }
+
+    // 2. التحقق الإجباري من الصور في حالة الإجازة المرضية
+    if(type === 'مرضية' && files.length === 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'مرفقات ناقصة',
+            text: 'يجب رفع صورة التقرير الطبي لتقديم إجازة مرضية',
+            confirmButtonText: 'حسناً'
+        });
+        return;
+    }
+
+    // نجاح العملية
+    Swal.fire({
+        title: 'تم الإرسال!',
+        text: 'تم تقديم طلبك بنجاح وجاري مراجعة المرفقات',
+        icon: 'success',
+        confirmButtonText: 'ممتاز'
+    }).then(() => {
+        // تفريغ الفورم والعودة
+        document.getElementById('leave-type').value = '';
+        document.getElementById('leave-start').value = '';
+        document.getElementById('leave-end').value = '';
+        document.getElementById('leave-files').value = '';
+        document.getElementById('medical-upload-section').classList.add('hidden');
+        backToMain();
+    });
+}
+
 </script>
 </body>
 </html>
